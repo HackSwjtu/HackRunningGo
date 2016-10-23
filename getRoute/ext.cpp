@@ -1,11 +1,23 @@
-#include <bits/stdc++.h>
+#include <iostream>
+#include <set>
+#include <cmath>
+#include <cstring>
+#include <cstdlib>
+#include <cstdio>
+#include <vector>
+#include <algorithm>
+#include <sstream>
+#include <fstream>
+
+
 using namespace std;
 
 const double eps = 1e-8;
 
 const double PI = 3.1415926535897932384626;
 
-#define END_STR							"----------------"
+// #define END_STR							"---------------"
+#define END_STR "$$$"
 #define EDGE_MAX_DIS					50
 #define OK_POINT_SIZE					16
 

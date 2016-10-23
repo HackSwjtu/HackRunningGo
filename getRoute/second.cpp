@@ -1,9 +1,14 @@
-#include <bits/stdc++.h>
+#include <iostream>
+#include <vector>
+#include <algorithm>
+#include <string>
+#include <cstring>
+#include <cstdlib>
+#include <cstdio>
 #include "ext.cpp"
 
 using namespace std;
 
-//#define END_STR							"----------------"
 
 
 vector<string>route;
