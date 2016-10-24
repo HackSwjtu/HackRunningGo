@@ -28,7 +28,6 @@ class Point:
         return s * 1000
 
 
-
 headers = {
         "Accept": "application/json",
         "Content-Type": "application/json",
@@ -70,13 +69,18 @@ def getOriginalJson(roomId):
     Request = Session.get(url, headers=headers)
     return Request.content
 
+MAX_DISTANCE = 20
+selectedTestPoints = []
+
 def isSelectedPoint(lat, lng):
     # print lat, lng
-    xx = Point(float(lat), float(lng))
+    thisPoint = Point(float(lat), float(lng))
     for tp in testPoints:
-        dis = tp.dis(xx)
+        dis = tp.dis(thisPoint)
 
-
+        if dis <= MAX_DISTANCE:
+            selectedTestPoints.append(tp)
+            return 1
     return 0
 
 
