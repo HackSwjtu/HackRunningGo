@@ -38,7 +38,7 @@ python updateRoutes.py
 Write your profile `id` and `password` to `user.data`.
 
 ```bash
-bash \n[id] [password] >> user.data
+bash \[id] [password] >> user.data
 cat user.data
 ```
 
