@@ -7,7 +7,7 @@ This python script can help you to add Running Records for your personal persona
 
 ## Screenshot
 
-![](/screenshot/ss.png)
+<img src="/screenshot/ss.png" width="200px" />
 
 ## Operating environment
 
