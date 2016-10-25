@@ -5,6 +5,14 @@ PC can run without legs. 😎
 
 This python script can help you to add Running Records for your personal information. And the running route is so reasonable because we change others running route and recode.
 
+## Declaration
+
+This project is not for profit, so our organization choose **opensource** for it. 
+We hope our school to make a better app, it includes **encrypted transmission information**, **use tokens for authentication**, **irreversible encryption account password** and **more secure network interface**. We sincerely hope that the school software technology is getting better and better, and it is not like this. 😓
+
+**So if you are like a 💩, we will fuck it. Thx.**
+
+
 ## Screenshot
 
 <img src="/screenshot/ss.png" width="200px" />
