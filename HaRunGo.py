@@ -16,9 +16,12 @@ file2 = open('tp.data')
 tps = file2.readlines()
 file2.close()
 
-file3 = open('totTime.data')
-tots = file3.readlines()
-file3.close()
+tots = []
+for route in routes:
+    times = re.findall(r'\\\"totalTime\\\"\:(\d+)', route)
+    t = times[len(times) - 1]
+    tots.append(int(t))
+print tots
 
 tot_cnt = len(routes)
 
@@ -111,7 +114,9 @@ def dataUpload(username, pwd, uid):
         "uid": str(uid),
         "Authorization": base64encode(username, pwd),
     }
-    index = selectRoute()
+    index = 0
+    while index == 0:
+        index = selectRoute()
     print ("Use " + str(index) + " data")
 
     thisdata, st, et = format(routes[index], tots[index])
@@ -119,20 +124,24 @@ def dataUpload(username, pwd, uid):
     # print thisdata
     totDisA = re.findall(r'\\\"totalDis\\\"\:\\\"(\d+.\d+)\\\"', thisdata)
 
-    totDis = totDisA[len(totDisA) - 1]
+    totDis = float(totDisA[len(totDisA) - 1]) / 1000
     # print totDis, tots[index]
 
-    speed = (float(tots[index]) / 60) / (float(totDis) / 1000)
+    speed = random.uniform(5, 7)
     # print speed
 
     speed_str =  "%.2f" % (speed)
+    totDis_str = "%.2f" % (totDis)
+
+    print speed_str
+    print totDis_str
 
     json = {
         "allLocJson":thisdata,
         "fivePointJson":tps[index],
         "complete": "true",
         "totalTime": tots[index],
-        "totalDis": totDis,
+        "totalDis": totDis_str,
         "stopTime": et,
         "speed": speed_str,
         "startTime": st,
@@ -144,7 +153,7 @@ def dataUpload(username, pwd, uid):
     }
     Session = requests.Session()
     Request = Session.post(url, headers = headers, json = json)
-    # print (Request.content)
+    print (Request.content)
 
 def logout(username, pwd):
     url = 'http://gxapp.iydsj.com/api/v2/user/logout'
@@ -185,6 +194,8 @@ def main():
     for u in users:
         username, password = u.split(' ')
         print username, password
+        logout(username, password)
+
         uid = login(username, password)
         dataUpload(username, password, uid)
         logout(username, password)

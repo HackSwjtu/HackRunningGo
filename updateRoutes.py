@@ -165,7 +165,7 @@ def getRoomIdJson():
             #     print p
             createFivePointsStr(willSelectedPoint)
 
-            if (cnt >= 5):
+            if (cnt >= 50):
                 break
     output.close()
     outdata.close()
