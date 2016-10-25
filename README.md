@@ -7,7 +7,7 @@ This python script can help you to add Running Records for your personal persona
 
 ## Screenshot
 
-![](/screesshot/ss.png)
+![](/screenshot/ss.png)
 
 ## Operating environment
 
@@ -44,7 +44,7 @@ cat user.data
 
 #### e.g
 
-![](/screesshot/ss2.png)
+![](/screenshot/ss2.png)
 
 ### 4. Let's run! Hacking!
 
