@@ -21,7 +21,7 @@ for route in routes:
     times = re.findall(r'\\\"totalTime\\\"\:(\d+)', route)
     t = times[len(times) - 1]
     tots.append(int(t))
-print tots
+# print tots
 
 tot_cnt = len(routes)
 
@@ -177,12 +177,19 @@ def logout(username, pwd):
     print Request.content
 
 def writeByData():
-    file = open('user.data')
+    file = open('user.data', 'r')
 
-    line = file.readlines()
+    # line = file.readlines()
+    line = []
+    for l in open('user.data'):
+        l = file.readline()
+        if l != '\n':
+            line.append(l.strip('\n'))
+    # print line
     # for l in line:
     #     user, pwd = l.split(' ')
     #     print (base64encode(user, pwd))
+    print line
     file.close()
     return line
 
