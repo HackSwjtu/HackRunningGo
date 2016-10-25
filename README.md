@@ -3,7 +3,7 @@ PC can run without legs. 😎
 
 ## Description
 
-This python script can help you to add Running Records for your personal personal information. And the running route is so reasonable because we change others running route and recode.
+This python script can help you to add Running Records for your personal information. And the running route is so reasonable because we change others running route and recode.
 
 ## Screenshot
 
