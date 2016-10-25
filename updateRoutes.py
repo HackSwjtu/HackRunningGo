@@ -100,7 +100,7 @@ def createFivePointsStr(points):
 
     for point in points:
         assert isinstance(point, Point)
-        need = "{\\\"flag\\\":%s,\\\"lon\\\":\\\"%s\\\",\\\"lat\\\":\\\"%s\\\",\\\"isFixed\\\":0,\\\"isPass\\\":false,\\\"isFinal\\\":false,\\\"id\\\":%s}" % (str(flag), str(point.lng), str(point.lat), str(id))
+        need = "{\\\"flag\\\":%s,\\\"lon\\\":\\\"%s\\\",\\\"lat\\\":\\\"%s\\\",\\\"isFixed\\\":0,\\\"isPass\\\":true,\\\"isfinal\\\":false,\\\"id\\\":%s}" % (str(flag), str(point.lng), str(point.lat), str(id))
         tpData += need
         # print need
         id += 1
