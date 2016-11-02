@@ -201,12 +201,15 @@ def main():
     for u in users:
         username, password = u.split(' ')
         print username, password
-        logout(username, password)
+        print "Start : %s" % time.ctime()
+        logout(username, password)  
 
         uid = login(username, password)
         dataUpload(username, password, uid)
         logout(username, password)
-
+        sleeptime = random.randint(20, 120)
+        print "Sleep %d seconds" % sleeptime
+        time.sleep(sleeptime)
 
 if __name__== '__main__':
     main()
