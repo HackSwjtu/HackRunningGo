@@ -82,7 +82,7 @@ def login(username, pwd):
     url = 'http://gxapp.iydsj.com/api/v3/login'
     headers = {
         "Host": "gxapp.iydsj.com",
-        "Accept": "*/*",
+        "Accept": "application/json",
         "Authorization": base64encode(username, pwd),
         "Proxy-Connection": "keep-alive",
         "osType": "appVersion",
@@ -111,6 +111,7 @@ def dataUpload(username, pwd, uid):
         "DeviceId": virtualDevicedId(username),
         "osType": "0",
         "source": "000049",
+        "Content-Type": "application/json;charset=UTF-8",
         "uid": str(uid),
         "Authorization": base64encode(username, pwd),
     }
@@ -136,7 +137,7 @@ def dataUpload(username, pwd, uid):
     print speed_str
     print totDis_str
 
-    json = {
+    postjson = {
         "allLocJson":thisdata,
         "fivePointJson":tps[index],
         "complete": "true",
@@ -152,7 +153,7 @@ def dataUpload(username, pwd, uid):
         "unCompleteReason": 0
     }
     Session = requests.Session()
-    Request = Session.post(url, headers = headers, json = json)
+    Request = Session.post(url, headers = headers, data=json.dumps(postjson))
     print (Request.content)
 
 def logout(username, pwd):
