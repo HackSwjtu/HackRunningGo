@@ -6,6 +6,7 @@ import math
 import time
 import datetime
 import random
+import HaRunGo
 
 class Point:
     lat = 0
@@ -33,9 +34,8 @@ class Point:
         s = s * 6378.137
         return s * 1000
 
-
-
-headers = {
+def getHeaders(userName,userPasswd):
+    headers = {
         "Accept": "application/json",
         "Content-Type": "application/json",
         "DeviceId": "913476526138277",
@@ -44,12 +44,13 @@ headers = {
         "osType": "0",
         "CustomDeviceId": "1F5576C69162C0D40D54B2F804CBF370",
         "uid": "80604",
-        "Authorization": "Basic MTgzMzU0MTA4MTc6MTIzNDU2",
+        "Authorization": HaRunGo.base64encode(userName,userPasswd),
         "User-Agent": "Dalvik/1.6.0 (Linux; U; Android 4.4.4; R9 Build/KTU84P)",
         "Host": "gxapp.iydsj.com",
         "Connection": "Keep-Alive",
         "Accept-Encoding": "gzip"
-    }
+        }
+    return headers
 
 outdata = open('tp.data', 'w')
 
@@ -75,7 +76,7 @@ testPoints = [
 def datetime_to_timestamp_in_milliseconds(d):
     return int(time.mktime(d.timetuple()) * 1000)
 
-def getOriginalJson(roomId):
+def getOriginalJson(roomId,headers):
     url = 'http://gxapp.iydsj.com/api/v3/get/'+ str(roomId) + '/history/finished/record '
     Session = requests.Session()
     Request = Session.get(url, headers=headers)
@@ -118,8 +119,8 @@ def createFivePointsStr(points):
     print tpData
 
 
-def getRoomIdJson():
-    url = 'http://gxapp.iydsj.com/api/v3/get/aboutrunning/list/80604/901/3'
+def getRoomIdJson(headers):
+    url = 'http://gxapp.iydsj.com/api/v3/get/aboutrunning/list/0/901/3'
     Session = requests.Session()
     Request = Session.get(url, headers=headers)
     reqDate = Request.content
@@ -128,7 +129,7 @@ def getRoomIdJson():
     output = open('route.data', 'w')
     cnt = 0
     for item in s["data"]:
-        OriginalJson = getOriginalJson(item["roomId"])
+        OriginalJson = getOriginalJson(item["roomId"],headers)
         NewJson = OriginalJson.replace("\\\"", "\"")
         NewJson2 = NewJson.replace("\\\\", "\\")
         # output.writelines(NewJson2)
@@ -172,7 +173,11 @@ def getRoomIdJson():
 
 
 def main():
-    getRoomIdJson()
+    users = HaRunGo.writeByData()
+    length = len(users)
+    username, password = users[random.randint(0,length-1)].split(' ')
+    headers = getHeaders(username, password)
+    getRoomIdJson(headers)
 
 if __name__== '__main__':
     main()
