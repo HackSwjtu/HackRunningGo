@@ -37,7 +37,7 @@ cd HackRunningGo-SC
 
 #### b.Download the zip.
 
-<image src="screenshot/ss3.png" width="200px" />
+<image src="screenshot/ss3.png" width="400px" />
 
 After download the zip,you need decompression it,and cd this dictionary.
 
