@@ -24,7 +24,9 @@ And we recommend you to use `terminal` or `bash` in Linux, `item` in macOS and `
 
 ## Flow
 
-### 1. Clone these repo.
+### 1. Clone these repo(need git installed) or download the zip.
+
+#### a.Clone the repo.
 
 You need to deploy environment. 
 
@@ -33,15 +35,13 @@ git clone https://github.com/HackSwjtu/HackRunningGo-SC.git
 cd HackRunningGo-SC
 ```
 
-### 2. Update running route static data. (optional)
+#### b.Download the zip.
 
-You can run following command code to update the static running route data. It will update these files: `route.data` and `tp.data`.
+<image src="screenshot/ss3.png" width="200px" />
 
-```bash
-python updateRoutes.py
-```
+After download the zip,you need decompression it,and cd this dictionary.
 
-### 3. Input your login id and password
+### 2. Input your login id and password
 
 Write your profile `id` and `password` to `user.data`.
 
@@ -53,6 +53,18 @@ cat user.data
 #### e.g
 
 ![](/screenshot/ss2.png)
+
+Or you can also find `user.data` file and open it with notepad.Then write your `id` and `password` to it(support multiple users,one line for one user.).
+
+
+### 3. Update running route static data. (optional)
+
+You can run following command code to update the static running route data. It will update these files: `route.data` and `tp.data`.
+
+```bash
+python updateRoutes.py
+```
+
 
 ### 4. Let's run! Hacking!
 
