@@ -161,9 +161,9 @@ def createFivePoints(points):
                 "id": id,
                 "isFixed": 0,
                 "isPass": False,
-                "lat": str(testPoints[i].lat),
-                "lon": str(testPoints[i].lng),
-                "pointName": i
+                "lat": str(testPoints[p].lat),
+                "lon": str(testPoints[p].lng),
+                "pointName": p
             }
             fivePoints.append(fp)
             cnt += 1

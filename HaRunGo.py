@@ -175,7 +175,7 @@ def dataUpload(userInfo):
             "id": stepid,
             "maxDiff": random.uniform(15, 20),
             "minDiff": random.uniform(8, 10),
-            "stepsNum": int(distance/0.7)
+            "stepsNum": int(distance/0.8)
         }
         allstep.append(step)
         speed = {
@@ -214,7 +214,7 @@ def dataUpload(userInfo):
         "sportType": 1,
         "totalTime": totaltime,
         "totalDis": int(currentdis),
-        "speed": int(currentdis/totaltime*1000),
+        "speed": int(1000/(currentdis/totaltime)/60*1000),
         "startTime": newflag,
         "stopTime": currenttime,
         "fivePointJson": json.dumps(fivepointjson, ensure_ascii=False),
@@ -224,8 +224,8 @@ def dataUpload(userInfo):
         "getPrize": False,
         "status": 0,
         "uid": userInfo['uid'],
-        "avgStepFreq": int(currentdis/0.8/totaltime*60),
-        "totalSteps": int(currentdis/0.8),
+        "avgStepFreq": int(currentdis/1.2/totaltime*60),
+        "totalSteps": int(currentdis/1.2),
         "selectedUnid": userInfo['unid'],
         "uuid": str(uuid.uuid1())
     }
@@ -329,9 +329,9 @@ def main():
             dataUpload(userInfo)
         finally:
             logout(userInfo)
-        #sleeptime = random.randint(20, 120)
-        #print "Sleep %d seconds" % sleeptime
-        #time.sleep(sleeptime)
+        sleeptime = random.randint(20, 120)
+        print "Sleep %d seconds" % sleeptime
+        time.sleep(sleeptime)
 
 if __name__== '__main__':
     main()
