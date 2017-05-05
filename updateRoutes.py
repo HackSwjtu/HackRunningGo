@@ -6,7 +6,10 @@ import math
 import time
 import datetime
 import random
-import HaRunGo
+import hashlib
+import codecs
+from Phone import *
+from HaRunGo import *
 
 class Point:
     lat = 0
@@ -34,150 +37,261 @@ class Point:
         s = s * 6378.137
         return s * 1000
 
-def getHeaders(userName,userPasswd):
-    headers = {
-        "Accept": "application/json",
-        "Content-Type": "application/json",
-        "DeviceId": "913476526138277",
-        "source": "000049",
-        "appVersion": "1.2.1",
-        "osType": "0",
-        "CustomDeviceId": "1F5576C69162C0D40D54B2F804CBF370",
-        "uid": "80604",
-        "Authorization": HaRunGo.base64encode(userName,userPasswd),
-        "User-Agent": "Dalvik/1.6.0 (Linux; U; Android 4.4.4; R9 Build/KTU84P)",
-        "Host": "gxapp.iydsj.com",
-        "Connection": "Keep-Alive",
-        "Accept-Encoding": "gzip"
-        }
-    return headers
+outdata = codecs.open('tp.data', 'w', 'utf-8')
 
-outdata = open('tp.data', 'w')
-
-testPoints = [
-        Point(30.771025, 103.985729),
-        Point(30.768690, 103.987364),
-        Point(30.772452, 103.988141),
-        Point(30.768566, 103.989982),
-        Point(30.765339, 103.990072),
-        Point(30.775152, 103.990113),
-        Point(30.769404, 103.991393),
-        Point(30.763314, 103.991707),
-        Point(30.767362, 103.992839),
-        Point(30.772670, 103.993903),
-        Point(30.773321, 103.995718),
-        Point(30.766797, 103.996032),
-        Point(30.770715, 103.996949),
-        Point(30.768291, 103.998134),
-        Point(30.766111, 103.998840),
-        Point(30.774981, 104.000061),
-    ]
+testPoints = {}
 
 def datetime_to_timestamp_in_milliseconds(d):
     return int(time.mktime(d.timetuple()) * 1000)
 
 def getOriginalJson(roomId,headers):
-    url = 'http://gxapp.iydsj.com/api/v3/get/'+ str(roomId) + '/history/finished/record '
+    data = {
+        "roomId":roomId
+    }
+    url = 'http://gxapp.iydsj.com/api/v8/get/room/history/finished/record'
     Session = requests.Session()
-    Request = Session.get(url, headers=headers)
+    Request = Session.post(url, headers=headers, data=json.dumps(data))
+#    print Request.content
     return Request.content
 
-MAX_DISTANCE = 20
+MAX_DISTANCE = 50
 
 def isSelectedPoint(lat, lng):
+    #print testPoints
     thisPoint = Point(float(lat), float(lng))
     for tp in testPoints:
-        dis = tp.dis(thisPoint)
+        dis = testPoints[tp].dis(thisPoint)
         if dis <= MAX_DISTANCE:
             return 1, tp
     return 0, 0
 
+def getTestPoints(userInfo):
+    timeStamp = str(int(time.time()*1000))
+    dic = {
+        'uid':userInfo['uid'],
+        'token':userInfo['token'],
+        'timeStamp':timeStamp
+    }
+    headers = {
+        "Host": "gxapp.iydsj.com",
+        "Accept": "application/json",
+        "osType": "0",
+        "Content-Type": "application/json",
+        "DeviceId": getDeviceId(),
+        "CustomDeviceId": getCustomDeviceId(),
+        "User-Agent": "Dalvik/2.1.0 (Linux; U; Android 5.0; SM-N9002 Build/LRX21V)",
+        "appVersion":"1.3.10",
+        "uid":str(dic['uid']),
+        "token":dic['token'],
+        "tokenSign":digestDict(dic),
+        "timeStamp":dic['timeStamp']
+    }
+    md5key = getMD5Key()
+    latlng = getStartLatLng()
+    url = 'http://gxapp.iydsj.com/api/v8/get/1/distance/1'
+    sign = hashlib.md5(url+md5key).hexdigest().upper()
+    post = {
+        "latitude":latlng['lat'],
+        "longitude":latlng['lng'],
+        "selectedUnid":userInfo['unid'],
+        "sign":sign
+    }
+    data = json.dumps(post)
+    Session = requests.Session()
+    for i in xrange(5):
+        Request = Session.post(url, headers=headers, data=data)
+        points = json.loads(Request.content)['data']['pointsResModels']
+        for p in points:
+            if not testPoints.has_key(p['pointName']):
+                testPoints[p['pointName']] = Point(p['lat'],p['lon'])
 
-def createFivePointsStr(points):
-    tpData = "{\"fivePointJson\":\"["
-    flag = datetime_to_timestamp_in_milliseconds(datetime.datetime.now())
-    id = int(random.uniform(0, 250))
-    cnt = 0
+def createFivePoints(points):
+#    tpData = "{\"fivePointJson\":\"["
+    tpData = set()
 
     for point in points:
-        assert isinstance(point, Point)
-        need = "{\\\"flag\\\":%s,\\\"lon\\\":\\\"%s\\\",\\\"lat\\\":\\\"%s\\\",\\\"isFixed\\\":0,\\\"isPass\\\":true,\\\"isfinal\\\":false,\\\"id\\\":%s}" % (str(flag), str(point.lng), str(point.lat), str(id))
-        tpData += need
+#        assert isinstance(point, Point)
+#        need = "{\\\"flag\\\":%s,\\\"lon\\\":\\\"%s\\\",\\\"lat\\\":\\\"%s\\\",\\\"isFixed\\\":0,\\\"isPass\\\":true,\\\"isfinal\\\":false,\\\"id\\\":%s}" % (str(flag), str(point.lng), str(point.lat), str(id))
+#        print type(point)
+        selected, pointName = isSelectedPoint(point['lat'], point['lng'])
+        if selected == 1:
+            tpData.add(pointName)
+        #tpData += need
         # print need
-        id += 1
+        #id += 1
+            #cnt += 1
+            #if cnt >= 5:
+            #or cnt == len(points) - 1:
+                #break
+#    print tpData
+    if len(tpData)<3:
+        return False
+    fivePoints = []
+    flag = datetime_to_timestamp_in_milliseconds(datetime.datetime.now())
+    id = int(random.uniform(0, 250))
+    cnt = len(fivePoints)
+    for i in tpData:
+        fp = {
+            "flag": flag,
+            "hasReward": False,
+            "id": id,
+            "isFixed": 0,
+            "isPass": True,
+            "lat": str(testPoints[i].lat),
+            "lon": str(testPoints[i].lng),
+            "pointName": i
+        }
+        fivePoints.append(fp)
         cnt += 1
-        if cnt >= 4 or cnt == len(points) - 1:
+        id += 1
+        if cnt >= 5:
             break
-        tpData += ','
+    #print len(fivePoints)
+    fixed = random.randint(0,len(fivePoints)-1)
+    fivePoints[fixed]['isFixed'] = 1
+    cnt = len(fivePoints)
+    #print cnt
+    while cnt<5:
+        for p in testPoints:
+            if p in tpData:
+                continue
+            fp = {
+                "flag": flag,
+                "hasReward": False,
+                "id": id,
+                "isFixed": 0,
+                "isPass": False,
+                "lat": str(testPoints[i].lat),
+                "lon": str(testPoints[i].lng),
+                "pointName": i
+            }
+            fivePoints.append(fp)
+            cnt += 1
+            id += 1
+            if cnt >= 5:
+                break
+        #tpData += ','
 
     # print tpData
-    tpData += "]\",\"useZip\":false}\n"
+    #tpData += "]\",\"useZip\":false}\n"
 
-    outdata.writelines(tpData)
+    #print len(points)
+    #print len(fivePoints)
+    fivepointjson = {
+        "fivePointJson": json.dumps(fivePoints ,ensure_ascii=False),
+        "useZip": False
+    }
+    outdata.write(json.dumps(fivepointjson ,ensure_ascii=False)+'\n')
+    return True
 
 
-    print tpData
+#    print tpData
 
 
-def getRoomIdJson(headers):
-    url = 'http://gxapp.iydsj.com/api/v3/get/aboutrunning/list/0/901/3'
+def getRoomIdJson(userInfo):
+    timeStamp = str(int(time.time()*1000))
+    dic = {
+        'uid':userInfo['uid'],
+        'token':userInfo['token'],
+        'timeStamp':timeStamp
+    }
+    headers = {
+        "Host": "gxapp.iydsj.com",
+        "Accept": "application/json",
+        "osType": "0",
+        "Content-Type": "application/json",
+        "DeviceId": getDeviceId(),
+        "CustomDeviceId": getCustomDeviceId(),
+        "User-Agent": "Dalvik/2.1.0 (Linux; U; Android 5.0; SM-N9002 Build/LRX21V)",
+        "appVersion":"1.3.10",
+        "uid":str(dic['uid']),
+        "token":dic['token'],
+        "tokenSign":digestDict(dic),
+        "timeStamp":dic['timeStamp']
+    }
+    url = 'http://gxapp.iydsj.com/api/v8/get/aboutrunning/list/'+str(dic['uid'])+'/'+str(userInfo['unid'])+'/'+'3'
+#    getTestPoints(headers)
     Session = requests.Session()
     Request = Session.get(url, headers=headers)
     reqDate = Request.content
-    print reqDate
+#    print reqDate
     s = json.loads(Request.content)
+#    print s['data']
     output = open('route.data', 'w')
-    cnt = 0
+#    cnt = 0
     for item in s["data"]:
         OriginalJson = getOriginalJson(item["roomId"],headers)
-        NewJson = OriginalJson.replace("\\\"", "\"")
-        NewJson2 = NewJson.replace("\\\\", "\\")
+#        print OriginalJson
+        data = json.loads(OriginalJson)['data']
+        for l in data['roomersModelList']:
+            if l['finished']:
+                d = json.loads(l['points'])
+                d = json.loads(d['allLocJson'])
+                if isinstance(d,list) and d[0].has_key('createtime'):
+                    print 'got one record for iphone,ignore it'
+                    continue
+                if createFivePoints(d):
+                    print 'got one record'
+                    alllocjson = {
+                        "allLocJson": json.dumps(d),
+                        "useZip": False
+                    }
+                    output.write(json.dumps(alllocjson) + '\n')
+                else:
+                    print 'got one record but doesn\'t match testPoint,ignore it'
+#            print json.loads(l['points'])
+#        NewJson = OriginalJson.replace("\\\"", "\"")
+#        NewJson2 = NewJson.replace("\\\\", "\\")
         # output.writelines(NewJson2)
         # print (str(cnt * 2) + "% :" + ("#" * cnt))
         # print NewJson2
 
-        willSelectedPoint = set()
+#        willSelectedPoint = set()
 
-        run_data_str = re.findall(r'{\"allLocJson\":\"\[\{\\"av.+\"useZip\":false}', str(NewJson2))
-        if (len(run_data_str) > 0):
+#        run_data_str = re.findall(r'{\"allLocJson\":\"\[\{\\"av.+\"useZip\":false}', str(NewJson2))
+#        if (len(run_data_str) > 0):
             # print cnt + 1
-            cnt = cnt + 1
-            print ("Updating " + str(cnt) + " running groups data. ")
-            output.write(run_data_str[0] + '\n')
+#            cnt = cnt + 1
+#            print ("Updating " + str(cnt) + " running groups data. ")
+#            output.write(run_data_str[0] + '\n')
 
-            run_points_str = re.findall(r'\\\"lat\\\"\:\\\"\d+.\d+\\\",\\\"lng\\"\:\\\"\d+.\d+\\\"', run_data_str[0])
+#            run_points_str = re.findall(r'\\\"lat\\\"\:\\\"\d+.\d+\\\",\\\"lng\\"\:\\\"\d+.\d+\\\"', run_data_str[0])
             # print run_points_str
-            for run_point_str in run_points_str:
+#            for run_point_str in run_points_str:
                 # print run_point_str
-                point_json_str = "{" + run_point_str + "}"
-                point_json_str = point_json_str.replace('\\\"', '\"')
+#                point_json_str = "{" + run_point_str + "}"
+#                point_json_str = point_json_str.replace('\\\"', '\"')
                 # print point_json_str
-                point_json = json.loads(point_json_str)
-                # print point_json
+#                point_json = json.loads(point_json_str)
+#                print point_json
 
-                thisPoint = Point(float(point_json['lat']), float(point_json['lng']))
+#                thisPoint = Point(float(point_json['lat']), float(point_json['lng']))
 
-                isPass, addPoint = isSelectedPoint(float(point_json['lat']), float(point_json['lng']))
+#                isPass, addPoint = isSelectedPoint(float(point_json['lat']), float(point_json['lng']))
 
-                if isPass  == 1:
-                    willSelectedPoint.add(addPoint)
-
+#                if isPass  == 1:
+#                    willSelectedPoint.add(addPoint)
+#
             # for p in willSelectedPoint:
             #     print p
-            createFivePointsStr(willSelectedPoint)
-
-            if (cnt >= 50):
-                break
+#            createFivePointsStr(willSelectedPoint)
+#
+#            if (cnt >= 50):
+#                break
     output.close()
     outdata.close()
 
 
 def main():
-    users = HaRunGo.writeByData()
+    users = writeByData()
     length = len(users)
     username, password = users[random.randint(0,length-1)].split(' ')
-    headers = getHeaders(username, password)
-    getRoomIdJson(headers)
+    userInfo = login(username, password)
+    try:
+        getTestPoints(userInfo)
+        getRoomIdJson(userInfo)
+    finally:
+        logout(userInfo)
 
 if __name__== '__main__':
     main()
