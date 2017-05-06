@@ -107,7 +107,7 @@ def login(username, pwd):
     }
     Request = Session.post(url, headers = headers, data = json.dumps(data))
     reqData = Request.content
-    print (reqData)
+    print ('login response: ' + reqData)
     dicData = json.loads(reqData)
     return dicData['data']
 
@@ -157,7 +157,7 @@ def dataUpload(userInfo):
     allspeed = []
     for i in fivepoint:
         i['flag'] = newflag
-        i['pointName'] = 'gogogo'
+        #i['pointName'] = 'gogogo'
     for i in allloc:
         i['flag'] = newflag
         oldtime = datetime.datetime.strptime(i['gainTime'],'%Y-%m-%d %H:%M:%S')
@@ -236,11 +236,11 @@ def dataUpload(userInfo):
     postjson['roomId'] = 0
     postjson['speedPerTenSec'] = allspeed
     postjson['stepsPerTenSec'] = allstep
-#    print json.dumps(postjson, ensure_ascii=False)
+#    print json.dumps(postjson)
 #    print signature
     Session = requests.Session()
     Request = Session.post(url, headers = headers, data=json.dumps(postjson))
-    print (Request.content)
+    print ('upload response: ' + Request.content)
 
 
 def logout(userInfo):
@@ -268,7 +268,7 @@ def logout(userInfo):
 #    print headers
     Session = requests.Session()
     Request = Session.post(url, headers = headers)
-    print Request.content
+    print ('logout response: ' + Request.content)
 
 def digestDict(dic):
     keys = dic.keys()
@@ -284,14 +284,16 @@ def digestDict(dic):
                 digeststr = digeststr+unicode(key)+u'='+u'false'+u'&'
     digeststr+=u'wh2016_swcampus'
     md5 = hashlib.md5()
-    digeststr = digeststr.encode('utf-8')
-#    print digeststr
+    #digeststr = digeststr.encode('utf-8')
     length = len(digeststr)
     count = 0
     while count<length:
         if not ord(digeststr[count])<=0x7F:
-            md5.update(digeststr[count+2])
-            count+=3
+            #md5.update(digeststr[count+2])
+            codepoint = ord(digeststr[count])
+            lowbyte = codepoint - ((codepoint >>8 ) << 8)
+            md5.update(chr(lowbyte))
+            count+=1
         else:
             md5.update(digeststr[count])
             count+=1
