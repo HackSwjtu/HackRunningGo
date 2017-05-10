@@ -107,7 +107,7 @@ def login(username, pwd):
     }
     Request = Session.post(url, headers = headers, data = json.dumps(data))
     reqData = Request.content
-    print ('login response: ' + reqData)
+    print ('login response: ' + bytes(reqData).decode('utf-8'))
     dicData = json.loads(reqData)
     return dicData['data']
 
@@ -240,7 +240,7 @@ def dataUpload(userInfo):
 #    print signature
     Session = requests.Session()
     Request = Session.post(url, headers = headers, data=json.dumps(postjson))
-    print ('upload response: ' + Request.content)
+    print ('upload response: ' + bytes(Request.content).decode('utf-8'))
 
 
 def logout(userInfo):
@@ -268,7 +268,7 @@ def logout(userInfo):
 #    print headers
     Session = requests.Session()
     Request = Session.post(url, headers = headers)
-    print ('logout response: ' + Request.content)
+    print ('logout response: ' + bytes(Request.content).decode('utf-8'))
 
 def digestDict(dic):
     keys = dic.keys()
@@ -307,8 +307,8 @@ def writeByData():
     line = []
     for l in open('user.data'):
         l = file.readline()
-        if l != '\n':
-            line.append(l.strip('\n'))
+        if l != '\n' and l != '\r' and l!='\r\n':
+            line.append(l.strip('\n').strip('\r'))
     # print line
     # for l in line:
     #     user, pwd = l.split(' ')

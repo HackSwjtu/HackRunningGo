@@ -22,11 +22,22 @@ We hope our school to make a better app, it includes **encrypted transmission in
 You need to install `python 2.7`. 
 And we recommend you to use `terminal` or `bash` in Linux, `item` in macOS and `powershell` in Windows.
 
+## Dependencies
+
+1. requests(A HTTP library for python)
+
+## About app.conf
+
+We use json string to configure this app. And notice that every time you modifed device_model, mac_address or imei, you need reset customDeviceId and deviceId to a empty string. The application will re-caculate it.
+
+1. device_model: The phone's model you want to use to upload your record.
+2. mac_address: The phone's mac address you want to use to upload your record.
+3. imei: The phone's imei you want to use to upload your record.
+4. startLatLng: We use it to get test points like a seed. You better change it to the geo coordinate of your school.
+
 ## Flow
 
 ### 1. Clone these repo(need git installed) or download the zip.
-
-#### a.Clone the repo.
 
 You need to deploy environment. 
 
@@ -35,11 +46,6 @@ git clone https://github.com/HackSwjtu/HackRunningGo-SC.git
 cd HackRunningGo-SC
 ```
 
-#### b.Download the zip.
-
-<image src="screenshot/ss3.png" width="400px" />
-
-After download the zip,you need decompression it,and cd this dictionary.
 
 ### 2. Input your login id and password
 
@@ -53,8 +59,6 @@ cat user.data
 #### e.g
 
 ![](/screenshot/ss2.png)
-
-Or you can also find `user.data` file and open it with notepad.Then write your `id` and `password` to it(support multiple users,one line for one user.).
 
 
 ### 3. Update running route static data. (optional)
