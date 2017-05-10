@@ -5,6 +5,16 @@ PC can run without legs. 😎
 
 This python script can help you to add Running Records for your personal information. And the running route is so reasonable because we change others running route and recode.
 
+## Fork Description
+
+Some universities will score students' PE class based on the record of this application.
+
+Therefore,I add a simple feature,which will allow you to add history running records.
+
+You can add history running records by a single day as well as a specific timezone.
+
+Have fun!
+
 ## Declaration
 
 This project is not for profit, so our organization choose **opensource** for it. 
