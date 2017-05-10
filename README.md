@@ -5,6 +5,8 @@ PC can run without legs. 😎
 
 This python script can help you to add Running Records for your personal information. And the running route is so reasonable because we change others running route and recode.
 
+**The `feature` banch is used to build full functionality!**
+
 ## Declaration
 
 This project is not for profit, so our organization choose **opensource** for it. 
