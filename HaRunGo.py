@@ -1,3 +1,4 @@
+# -*- coding:utf-8 -*-
 import fileinput
 import requests
 import json
@@ -10,6 +11,13 @@ import hashlib
 from Phone import *
 import uuid
 import codecs
+
+#a time delta to pull back to the history,like a week,a month ago.
+KKK_WEEK_MICROSECONDS = 604800000  # the microseconds in a week
+KKK_DAY_MICROSECONDS = 86400000 # the microseconds in a day
+KKK_TIME_DELTA_MILSEC = 0   #default set to zero,for no history hack
+KKK_TIME_DELTA_BEGIN = 0
+KKK_TIME_DELTA_END = 0
 
 # Globle Var
 file1 = open('route.data')
@@ -38,48 +46,13 @@ def base64encode(username, pwd):
     strr = sign.join(list)
     return "Basic " + str(base64.b64encode(strr))
 
-#def virtualDevicedId(username):
-#    fi = base16encode(username)
-#    la = username[1:]
-#    id = fi + la
-#    res = "%s-%s-%s-%s-%s" % (id[0:8], id[8:12], id[12:16], id[16:20], id[20:])
-#    return res
 
-#def virtualCustomDeviceId(username):
-#    return virtualDevicedId(username) + "_iOS_sportsWorld_campus"
 
 def selectRoute():
     return int(random.uniform(0, tot_cnt - 1))
 
 def datetime_to_timestamp_in_milliseconds(d):
     return int(time.mktime(d.timetuple()) * 1000)
-
-#def format(data, totTime):
-#    data = str(data)
-#    res = re.findall(r'\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}', data)
-#    startTime = res[0]
-#    startDate = startTime[0:10]
-#    dateToday = datetime.date.today()
-#    newData = data.replace(startDate, str(dateToday))
-
-#    startTimeDtObj = datetime.datetime.now() + datetime.timedelta(seconds = -int(totTime))
-#    endTimeDtObj = startTimeDtObj + datetime.timedelta(seconds = int(totTime))
-
-    # startTimeDtObj = datetime.datetime.strptime(startTime, "%Y-%m-%d %H:%M:%S")
-    # startTimeTiObj = time.strptime(startTime, "%Y-%m-%d %H:%M:%S")
-    #st = datetime_to_timestamp_in_milliseconds(startTimeDtObj)
-    #et = datetime_to_timestamp_in_milliseconds(endTimeDtObj)
-    # newData = data.replace(str(dataDate), str(data_today))
-
-    #res = re.findall(r'\d{13}', newData)
-    #newData = newData.replace(res[0], str(st))
-
-    # print("new data: " + newData)
-    # print("totTime:  " + str(totTime))
-    # print("start:    " + str(st))
-    # print("end:      " + str(et))
-
-    #return str(newData), int(st), int(et)
 
 
 def login(username, pwd):
@@ -111,9 +84,9 @@ def login(username, pwd):
     dicData = json.loads(reqData)
     return dicData['data']
 
-def dataUpload(userInfo):
+def dataUpload(userInfo,KKKKK_TIMEDELTA_MICROSECOND=0):
     url = 'http://gxapp.iydsj.com/api/v10/runnings/add_record'
-    timeStamp = str(int(time.time()*1000))
+    timeStamp = str(int(time.time()*1000)- KKKKK_TIMEDELTA_MICROSECOND) 
     dic = {
         'uid':userInfo['uid'],
         'token':userInfo['token'],
@@ -146,8 +119,8 @@ def dataUpload(userInfo):
     fivepoint = json.loads(fivepointjson['fivePointJson'])
     oldflag = allloc[0]['flag']
     totaltime = allloc[len(allloc)-1]['totalTime']
-    newflag = int(time.time()*1000) - totaltime*1000
-    delta = newflag-oldflag
+    newflag = int(time.time()*1000) - totaltime*1000 - KKKKK_TIMEDELTA_MICROSECOND
+    delta = newflag-oldflag - KKKKK_TIMEDELTA_MICROSECOND
     timedelta = datetime.timedelta(days = int(delta/86400000), seconds = int(delta/1000)%86400, microseconds = delta%1000)
     speedid = int(random.uniform(0, 250))
     stepid = int(random.uniform(0, 250))
@@ -160,10 +133,10 @@ def dataUpload(userInfo):
         #i['pointName'] = 'gogogo'
     for i in allloc:
         i['flag'] = newflag
-        oldtime = datetime.datetime.strptime(i['gainTime'],'%Y-%m-%d %H:%M:%S')
+        oldtime = datetime.datetime.strptime(i['gainTime'],'%Y-%m-%d %H:%M:%S')- datetime.timedelta(microseconds=KKKKK_TIMEDELTA_MICROSECOND)
         newtime = oldtime + timedelta
         #print newtime
-        endtime = datetime_to_timestamp_in_milliseconds(newtime)
+        endtime = datetime_to_timestamp_in_milliseconds(newtime) - KKKKK_TIMEDELTA_MICROSECOND
         distance = float(i['totalDis']) - currentdis
         currentdis = float(i['totalDis'])
         i['gainTime'] = newtime.strftime('%Y-%m-%d %H:%M:%S')
@@ -317,7 +290,50 @@ def writeByData():
     file.close()
     return line
 
+def modeSelection():
+    global KKK_TIME_DELTA_MILSEC
+    global KKK_TIME_DELTA_BEGIN
+    global KKK_TIME_DELTA_END
+    print "Select mode: \n\t1).Hack for todays\n\t2).Hack for history"
+    mode = int(input("choose your mode:_____\b\b"))
+    if mode == 1:
+        #todays mode,delta time set to zero
+        return 1
+    elif mode == 2:
+        #history mode,delta time set by user
+        secondary_mode = int(input("Choose history hack mode:\n\t1).Hack for one single day\n\t2).Hack for a time zone\nyour selection:___\b\b"))
+        if secondary_mode == 1:
+            #hack for one day
+            week_before = int(input("Input week(s) before today:____\b\b"))
+            which_day = int(input("Input which day in that week you want to hack:_____\b\b"))
+            if which_day > 7 or which_day < 0:
+                print "INVALIDED DAYS INPUT!IT SHOULD BE BETWEEN 1 TO 7!EXIT!"
+                exit()
+            KKK_TIME_DELTA_MILSEC = KKK_WEEK_MICROSECONDS*week_before + KKK_DAY_MICROSECONDS*which_day
+            return 2
+        elif secondary_mode == 2:
+            #hack for a time zone
+            week_begin = int(input("Input the begining week you want to hack:_____\b\b"))
+            day_begin = int(input("Input the day you want to hack in the begining week:_____\b\b"))
+            week_end = int(input("Input the ending week you want to hack:_____\b\b"))
+            day_end = int(input("Input the day you want to hack in the ending week:_____\b\b"))
+            if (day_begin > 7 or day_begin < 0) or (day_end > 7 or day_end < 0):
+                print "INVALIDED DAYS INPUT!IT SHOULD BE BETWEEN 1 TO 7!EXIT!"
+                exit()
+            KKK_TIME_DELTA_BEGIN = KKK_WEEK_MICROSECONDS*week_begin + KKK_DAY_MICROSECONDS*day_begin
+            KKK_TIME_DELTA_END = KKK_WEEK_MICROSECONDS*week_end + KKK_DAY_MICROSECONDS*day_end
+            return 3
+        else:
+            print "UNKNOW MODE!EXIT!"
+            exit()
+    else:
+        print "UNKNOW MODE!EXIT!"
+        exit()
+
 def main():
+    global KKK_TIME_DELTA_MILSEC
+    global KKK_TIME_DELTA_BEGIN
+    global KKK_TIME_DELTA_END
     users = writeByData()
 
 #    index = selectRoute()
@@ -325,15 +341,50 @@ def main():
     for u in users:
         username, password = u.split(' ')
         print username, password
+        #mode selection
+        mode = modeSelection()
         print "Start : %s" % time.ctime()
         userInfo = login(username, password)
-        try:
-            dataUpload(userInfo)
-        finally:
+        #hacking by mode
+        if mode == 1:
+            #hacking today
+            print "mode 1"
+            try:
+                exit()
+                dataUpload(userInfo)
+            finally:
+                logout(userInfo)
+        elif mode == 2:
+            #hacking a single sleected day
+            print "mode 2"
+            try:
+                exit()
+                dataUpload(userInfo,KKK_TIME_DELTA_MILSEC)
+            finally:
+                logout(userInfo)
+        elif mode == 3:
+            #hacking a day from specified begining to ending
+            print "mode 3"
+            i = 0
+            print KKK_TIME_DELTA_BEGIN,KKK_TIME_DELTA_END
+            while KKK_TIME_DELTA_BEGIN >= KKK_TIME_DELTA_END:
+                i+=1
+                print ">>>Performing the %d hacking on %s" % (i,(datetime.datetime.fromtimestamp(int(time.time())-KKK_TIME_DELTA_BEGIN/1000).strftime('%Y-%m-%d %H:%M:%S')))
+                try:
+                    dataUpload(userInfo,KKK_TIME_DELTA_BEGIN)
+                except:
+                    print "error."
+                KKK_TIME_DELTA_BEGIN -= KKK_DAY_MICROSECONDS
+                sleeptime = random.randint(20, 120)
+                print "Sleep %d seconds" % sleeptime
+                time.sleep(sleeptime)
             logout(userInfo)
         sleeptime = random.randint(20, 120)
         print "Sleep %d seconds" % sleeptime
+        #only run for the first user
         time.sleep(sleeptime)
+        #print('done.')
+        #exit()
 
 if __name__== '__main__':
     main()
