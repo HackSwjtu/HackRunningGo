@@ -350,7 +350,6 @@ def main():
             #hacking today
             print "mode 1"
             try:
-                exit()
                 dataUpload(userInfo)
             finally:
                 logout(userInfo)
@@ -358,7 +357,6 @@ def main():
             #hacking a single sleected day
             print "mode 2"
             try:
-                exit()
                 dataUpload(userInfo,KKK_TIME_DELTA_MILSEC)
             finally:
                 logout(userInfo)
@@ -381,10 +379,7 @@ def main():
             logout(userInfo)
         sleeptime = random.randint(20, 120)
         print "Sleep %d seconds" % sleeptime
-        #only run for the first user
         time.sleep(sleeptime)
-        #print('done.')
-        #exit()
 
 if __name__== '__main__':
     main()
