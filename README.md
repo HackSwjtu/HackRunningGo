@@ -1,5 +1,9 @@
-# HackRunningGo-SC
+# HackRunningGo [![Join the chat at https://gitter.im/HackRunningGo](https://badges.gitter.im/MModel/MetaModel.svg)](https://gitter.im/HackRunningGo/Lobby?utm_source=share-link&utm_medium=link&utm_campaign=share-link)
+
+
 PC can run without legs. 😎
+
+**Take part in [Gitter](https://gitter.im/HackRunningGo/Lobby?utm_source=share-link&utm_medium=link&utm_campaign=share-link) to discuss together.**
 
 ## Description
 
